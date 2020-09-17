@@ -16,6 +16,13 @@ import (
 	"github.com/valyala/bytebufferpool"
 )
 
+type Reader interface {
+	io.Reader
+	io.ByteScanner
+}
+
+type NewBodyReader func(*bufio.Reader, ResponseHeader) Reader
+
 // Request represents HTTP request.
 //
 // It is forbidden copying Request instances. Create new instances
@@ -77,6 +84,8 @@ type Response struct {
 	w          responseBodyWriter
 	body       *bytebufferpool.ByteBuffer
 	bodyRaw    []byte
+
+	NewBodyReader NewBodyReader
 
 	// Response.Read() skips reading body if set to true.
 	// Use it for reading HEAD responses.
@@ -1077,7 +1086,11 @@ func (resp *Response) ReadLimitBody(r *bufio.Reader, maxBodySize int) error {
 	if !resp.mustSkipBody() {
 		bodyBuf := resp.bodyBuffer()
 		bodyBuf.Reset()
-		bodyBuf.B, err = readBody(r, resp.Header.ContentLength(), maxBodySize, bodyBuf.B)
+		var reader Reader = r
+		if resp.NewBodyReader != nil {
+			reader = resp.NewBodyReader(r, resp.Header)
+		}
+		bodyBuf.B, err = readBody(reader, resp.Header.ContentLength(), maxBodySize, bodyBuf.B)
 		if err != nil {
 			return err
 		}
@@ -1768,7 +1781,7 @@ func writeChunk(w *bufio.Writer, b []byte) error {
 // the given limit.
 var ErrBodyTooLarge = errors.New("body size exceeds the given limit")
 
-func readBody(r *bufio.Reader, contentLength int, maxBodySize int, dst []byte) ([]byte, error) {
+func readBody(r Reader, contentLength int, maxBodySize int, dst []byte) ([]byte, error) {
 	dst = dst[:0]
 	if contentLength >= 0 {
 		if maxBodySize > 0 && contentLength > maxBodySize {
@@ -1782,7 +1795,7 @@ func readBody(r *bufio.Reader, contentLength int, maxBodySize int, dst []byte) (
 	return readBodyIdentity(r, maxBodySize, dst)
 }
 
-func readBodyIdentity(r *bufio.Reader, maxBodySize int, dst []byte) ([]byte, error) {
+func readBodyIdentity(r Reader, maxBodySize int, dst []byte) ([]byte, error) {
 	dst = dst[:cap(dst)]
 	if len(dst) == 0 {
 		dst = make([]byte, 1024)
@@ -1815,7 +1828,7 @@ func readBodyIdentity(r *bufio.Reader, maxBodySize int, dst []byte) ([]byte, err
 	}
 }
 
-func appendBodyFixedSize(r *bufio.Reader, dst []byte, n int) ([]byte, error) {
+func appendBodyFixedSize(r Reader, dst []byte, n int) ([]byte, error) {
 	if n == 0 {
 		return dst, nil
 	}
@@ -1852,7 +1865,7 @@ type ErrBrokenChunk struct {
 	error
 }
 
-func readBodyChunked(r *bufio.Reader, maxBodySize int, dst []byte) ([]byte, error) {
+func readBodyChunked(r Reader, maxBodySize int, dst []byte) ([]byte, error) {
 	if len(dst) > 0 {
 		panic("BUG: expected zero-length buffer")
 	}
@@ -1882,7 +1895,7 @@ func readBodyChunked(r *bufio.Reader, maxBodySize int, dst []byte) ([]byte, erro
 	}
 }
 
-func parseChunkSize(r *bufio.Reader) (int, error) {
+func parseChunkSize(r Reader) (int, error) {
 	n, err := readHexInt(r)
 	if err != nil {
 		return -1, err

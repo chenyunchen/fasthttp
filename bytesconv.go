@@ -257,7 +257,7 @@ var (
 	errTooLargeHexNum = errors.New("too large hex number")
 )
 
-func readHexInt(r *bufio.Reader) (int, error) {
+func readHexInt(r Reader) (int, error) {
 	n := 0
 	i := 0
 	var k int

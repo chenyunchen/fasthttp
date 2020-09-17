@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/valyala/fasthttp"
+	"gitlab.silkrode.com.tw/golang/fasthttp"
 )
 
 var (

@@ -7,7 +7,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/valyala/fasthttp"
+	"gitlab.silkrode.com.tw/golang/fasthttp"
 )
 
 // FasthttpHTTPDialer returns a fasthttp.DialFunc that dials using

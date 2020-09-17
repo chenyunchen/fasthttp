@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/valyala/fasthttp"
+	"gitlab.silkrode.com.tw/golang/fasthttp"
 )
 
 func TestNewFastHTTPHandler(t *testing.T) {

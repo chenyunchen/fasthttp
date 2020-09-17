@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/valyala/fasthttp"
+	"gitlab.silkrode.com.tw/golang/fasthttp"
 )
 
 func TestExpvarHandlerBasic(t *testing.T) {

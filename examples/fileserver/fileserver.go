@@ -9,8 +9,8 @@ import (
 	"flag"
 	"log"
 
-	"github.com/valyala/fasthttp"
-	"github.com/valyala/fasthttp/expvarhandler"
+	"gitlab.silkrode.com.tw/golang/fasthttp"
+	"gitlab.silkrode.com.tw/golang/fasthttp/expvarhandler"
 )
 
 var (

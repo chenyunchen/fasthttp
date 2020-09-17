@@ -5,7 +5,7 @@ package fuzz
 import (
 	"bytes"
 
-	"github.com/valyala/fasthttp"
+	"gitlab.silkrode.com.tw/golang/fasthttp"
 )
 
 func Fuzz(data []byte) int {

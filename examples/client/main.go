@@ -14,15 +14,17 @@ type customReader struct {
 
 func (c *customReader) Read(p []byte) (n int, err error) {
 	n, err = c.Reader.Read(p)
-	fmt.Println(n, err)
+	// nn, err = io.Copy(c.Writer, c.Reader) read then write
+	fmt.Println(p)
 	return
 }
 
 func main() {
 	log.Println("start")
 	var (
-		strMethod     = []byte("GET")
-		strRequestURI = []byte("http://ipv4.download.thinkbroadband.com/1GB.zip")
+		strMethod = []byte("GET")
+		//strRequestURI = []byte("http://ipv4.download.thinkbroadband.com/1GB.zip")
+		strRequestURI = []byte("https://www.google.com/")
 	)
 
 	req := fasthttp.AcquireRequest()
@@ -42,9 +44,11 @@ func main() {
 		c.Reader = r
 		return c
 	}
-	// res.SkipBody = true
+	res.SkipBody = false
 
-	client := fasthttp.Client{}
+	client := fasthttp.Client{
+		MaxIdemponentCallAttempts: 1,
+	}
 	if err := client.Do(req, res); err != nil {
 		log.Panic(err)
 	}

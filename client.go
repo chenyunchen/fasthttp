@@ -170,7 +170,7 @@ func Post(dst []byte, url string, postArgs *Args) (statusCode int, body []byte, 
 }
 
 var defaultClient Client
-var DefaultProxyUrl = ""
+var DefaultProxyUrl string
 
 // Client implements http client.
 //

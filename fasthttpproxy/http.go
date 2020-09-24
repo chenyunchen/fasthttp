@@ -7,7 +7,6 @@ import (
 	"gitlab.silkrode.com.tw/golang/fasthttp"
 	"net"
 	"strings"
-	"time"
 )
 
 // FasthttpHTTPDialer returns a fasthttp.DialFunc that dials using
@@ -17,7 +16,7 @@ import (
 //	c := &fasthttp.Client{
 //		Dial: fasthttpproxy.FasthttpHTTPDialer("username:password@localhost:9050"),
 //	}
-func FasthttpHTTPDialer(proxy string, duration time.Duration) fasthttp.DialFunc {
+func FasthttpHTTPDialer(proxy string) fasthttp.DialFunc {
 	var auth string
 	if strings.Contains(proxy, "@") {
 		split := strings.Split(proxy, "@")
@@ -26,7 +25,7 @@ func FasthttpHTTPDialer(proxy string, duration time.Duration) fasthttp.DialFunc 
 	}
 
 	return func(addr string) (net.Conn, error) {
-		conn, err := fasthttp.DialTimeout(proxy, duration)
+		conn, err := fasthttp.Dial(proxy)
 		if err != nil {
 			return nil, err
 		}
